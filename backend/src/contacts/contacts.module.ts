@@ -1,4 +1,11 @@
 import { Module } from '@nestjs/common';
+import { ContactsService } from './contacts.service';
+import { ContactsController } from './contacts.controller';
+import { AuthModule } from '../auth/auth.module';
 
-@Module({})
+@Module({
+  imports: [AuthModule],
+  providers: [ContactsService],
+  controllers: [ContactsController],
+})
 export class ContactsModule {}

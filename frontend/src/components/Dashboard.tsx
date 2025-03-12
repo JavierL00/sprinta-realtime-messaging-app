@@ -6,6 +6,8 @@ export default function Dashboard(): ReactElement {
 	const {session, signOut} = UserAuth();
 	const navigate = useNavigate();
 
+	console.log(session);
+
 	const handleSignOut = async (e: any) => {
 		e.preventDefault();
 		try {
