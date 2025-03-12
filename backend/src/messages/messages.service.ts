@@ -5,7 +5,7 @@ import { Supabase } from '../auth/supabase';
 export class MessagesService {
   constructor(private readonly supabase: Supabase) {}
 
-  async testing(
+  async getMessagesByContact(
     userId: string,
     contactId: string,
     page: number,

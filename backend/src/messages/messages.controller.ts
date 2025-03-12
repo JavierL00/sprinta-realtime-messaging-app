@@ -8,13 +8,13 @@ export class MessagesController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  testing(
+  getMessagesByContact(
     @Req() req: any,
     @Query('contact_id') contactId: string,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
   ) {
-    return this.messagesService.testing(
+    return this.messagesService.getMessagesByContact(
       req.user.user_metadata.sub,
       contactId,
       page,
