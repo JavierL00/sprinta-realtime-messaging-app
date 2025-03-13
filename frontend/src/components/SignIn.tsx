@@ -15,7 +15,7 @@ export default function SignIn(): ReactElement {
 
 		const {accessToken} = useAuthStore.getState();
 		if (accessToken) {
-			navigate("/dashboard");
+			navigate("/inbox");
 		}
 	};
 

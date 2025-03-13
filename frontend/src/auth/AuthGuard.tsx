@@ -17,11 +17,11 @@ export function AuthGuard({children}: { children: ReactElement }) {
 		}
 
 		if (isAuth && isHomePage) {
-			navigate("/dashboard");
+			navigate("/inbox");
 		}
 
 		if (isAuth && isSignupPage) {
-			navigate("/dashboard");
+			navigate("/inbox");
 		}
 	}, [accessToken, refreshToken, location, navigate]);
 

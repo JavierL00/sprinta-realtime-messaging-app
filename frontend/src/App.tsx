@@ -3,7 +3,7 @@ import {BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom
 import {AuthGuard} from "./auth/AuthGuard";
 import SignIn from "./components/SignIn";
 import Signup from "./components/Signup";
-import Dashboard from "./components/Dashboard";
+import Inbox from "./components/Inbox";
 
 function App(): ReactElement {
 	return (
@@ -12,7 +12,7 @@ function App(): ReactElement {
 			 <Routes>
 				 <Route path="/" element={<SignIn/>}/>
 				 <Route path="/signup" element={<Signup/>}/>
-				 <Route path="/dashboard" element={<Dashboard/>}/>
+				 <Route path="/inbox" element={<Inbox/>}/>
 				 <Route path="*" element={<Navigate to="/"/>}/>
 			 </Routes>
 		 </AuthGuard>
