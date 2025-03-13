@@ -1,4 +1,12 @@
-import {Body, Controller, Get, Post, Query, Req, UseGuards} from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { JwtAuthGuard } from '../auth/guards/jwt.auth.guard';
 
@@ -25,16 +33,14 @@ export class MessagesController {
   @Post()
   @UseGuards(JwtAuthGuard)
   async sendMessage(
-   @Req() req: any,
-   @Body('receiver_id') receiverId: string,
-   @Body('content') content: string,
-   @Body('image_url') imageUrl?: string,
+    @Req() req: any,
+    @Body('receiverId') receiverId: string,
+    @Body('content') content: string,
   ) {
     return this.messagesService.sendMessage(
-     req.user.user_metadata.sub,
-     receiverId,
-     content,
-     imageUrl,
+      req.user.user_metadata.sub,
+      receiverId,
+      content,
     );
   }
 }
