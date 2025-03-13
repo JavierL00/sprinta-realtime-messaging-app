@@ -29,4 +29,31 @@ export class MessagesService {
 
     return { messages: data };
   }
+
+  async sendMessage(
+    senderId: string,
+    receiverId: string,
+    content: string,
+    imageUrl?: string,
+  ) {
+    const { data, error } = await this.supabase
+      .getClient()
+      .from('messages')
+      .insert([
+        {
+          sender_id: senderId,
+          receiver_id: receiverId,
+          content,
+          image_url: imageUrl,
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    return { message: data };
+  }
 }
