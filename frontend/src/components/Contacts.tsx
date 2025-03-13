@@ -1,9 +1,10 @@
 import {ReactElement, useEffect} from "react";
 import {useAuthStore} from "../store/auth";
+import {Contact} from "../interface/contact";
 
 interface Props {
-	onSelectContact: (id: string) => void;
-	selectedContact: string | null;
+	onSelectContact: (contact: Contact) => void;
+	selectedContact: Contact | null;
 }
 
 export default function Contacts({onSelectContact, selectedContact}: Props): ReactElement {
@@ -27,12 +28,12 @@ export default function Contacts({onSelectContact, selectedContact}: Props): Rea
 			className="w-full mt-2 p-2 border rounded-md"
 		 />
 		 <ul className="mt-4 space-y-2">
-			 {contacts?.map((contact) => (
+			 {contacts?.map((contact: Contact) => (
 				<li
 				 key={contact.id}
-				 onClick={() => onSelectContact(contact.id)}
+				 onClick={() => onSelectContact(contact)}
 				 className={`p-3 rounded-lg cursor-pointer ${
-					selectedContact === contact.id
+					selectedContact?.id === contact.id
 					 ? "bg-purple-500 text-white"
 					 : "hover:bg-gray-200"
 				 }`}

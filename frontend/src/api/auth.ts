@@ -70,3 +70,23 @@ export const getMessagesRequest = async (contactId: string, page: number, limit:
 		return errorType.message;
 	}
 }
+
+export const sendMessageRequest = async (receiverId: string, content: string, file?: File | null) => {
+	const formData = new FormData();
+	formData.append("receiver_id", receiverId);
+	formData.append("content", content);
+	if (file) {
+		formData.append("file", file);
+	}
+
+	try {
+		const response = await axios.post("/messages", formData, {
+			headers: {
+				"Content-Type": "multipart/form-data",
+		}});
+		return response.data;
+	} catch (error) {
+		const errorType = error as Error;
+		return errorType.message;
+	}
+}

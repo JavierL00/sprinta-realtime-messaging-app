@@ -1,41 +1,64 @@
-import {ReactElement, useEffect, useState} from "react";
+import {ReactElement, useEffect, useRef, useState} from "react";
 import {useAuthStore} from "../store/auth";
+import {Contact} from "../interface/contact";
 
 interface Props {
-	contactId: string | null;
+	contact: Contact | null;
 }
 
-export default function Chat({contactId}: Props): ReactElement {
-	const fetchMessages = useAuthStore((state) => state.fetchMessages);
-	// const sendMessage = useAuthStore((state) => state.sendMessage);
+export default function Chat({contact}: Props): ReactElement {
+	const {fetchMessages, sendMessage} = useAuthStore();
 	const [messages, setMessages] = useState<any[]>([]);
 	const [page, setPage] = useState(1);
 	const [message, setMessage] = useState("");
+	const [file, setFile] = useState<File | null>(null);
+	const prevContactId = useRef<string | null>(null);
 
-	useEffect(() => {
-		const loadMessages = async () => {
-			if (!contactId) return;
-			const newMessages = await fetchMessages(contactId, page, 10);
-			setMessages(newMessages);
-		};
+	// useEffect(() => {
+	// 	const loadMessages = async () => {
+	// 		if (!contact) return;
+	//
+	// 		if (prevContactId.current !== contact) {
+	// 			setMessages([]);
+	// 			setPage(1);
+	// 			prevContactId.current = contact;
+	// 		}
+	//
+	// 		const newMessages = await fetchMessages(contact, page, 10);
+	//
+	// 		setMessages((prevMessages) => {
+	// 			const existingIds = new Set(prevMessages.map(msg => msg.id));
+	// 			const filteredMessages = newMessages.filter(msg => !existingIds.has(msg.id));
+	// 			return [...filteredMessages, ...prevMessages];
+	// 		});
+	// 	};
+	//
+	// 	loadMessages();
+	// }, [contact, page]);
 
-		setMessages([]);
-		if (contactId) loadMessages();
-	}, [contactId, page]);
+	const handleSendMessage = async () => {
+		if (!contact || (!message && !file)) return;
+		const newMessage = await sendMessage(contact?.id, message, file);
+		if (newMessage) {
+			setMessages((prevMessages) => [...prevMessages, newMessage]);
+		}
+		setMessage("");
+		setFile(null);
+	};
 
 	return (
 	 <div className="flex-1 flex flex-col">
-		 {contactId ? (
+		 {contact ? (
 			<>
 				<div className="p-4 border-b bg-gray-200">
-					<h2 className="text-xl font-bold">{contactId}</h2>
+					<h2 className="text-xl font-bold">{contact?.name}</h2>
 				</div>
 				<div className="flex-1 overflow-y-auto p-4 space-y-3">
 					{messages.map((msg, index) => (
 					 <div
 						key={index}
 						className={`p-3 rounded-lg max-w-xs ${
-						 msg.sender === contactId
+						 msg.sender === contact
 							? "bg-purple-500 text-white self-end text-left"
 							: "bg-gray-300 text-right"
 						}`}
@@ -44,14 +67,31 @@ export default function Chat({contactId}: Props): ReactElement {
 					 </div>
 					))}
 				</div>
-				<button className="mt-4 p-2 bg-gray-300" onClick={() => setPage(page + 1)}>Cargar más</button>
-				<div className="p-4 border-t bg-white flex">
+				{messages.length > 0 && (
+				 <button
+					className="mt-4 p-2 bg-gray-300"
+					onClick={() => setPage((prev) => prev + 1)}
+				 >
+					 Cargar más
+				 </button>
+				)}
+				<div className="p-4 border-t bg-white flex flex-wrap gap-2">
 					<input
 					 type="text"
 					 placeholder="Escribe un mensaje..."
 					 className="flex-1 p-2 border rounded-md"
+					 value={message}
+					 onChange={(e) => setMessage(e.target.value)}
 					/>
-					<button className="ml-2 px-4 py-2 bg-purple-500 text-white rounded-md">
+					<input
+					 type="file"
+					 className="border rounded-md text-sm p-2 w-[250px] text-stone-500 file:mr-5 file:py-1 file:px-3 file:text-xs file:font-medium file:border file:rounded-md file:bg-stone-50 file:text-stone-700 hover:file:cursor-pointer hover:file:bg-blue-50 hover:file:text-blue-700"
+					 onChange={(e) => setFile(e.target.files?.[0] || null)}
+					/>
+					<button
+					 onClick={handleSendMessage}
+					 className="px-4 py-2 bg-purple-500 text-white rounded-md"
+					>
 						Enviar
 					</button>
 				</div>

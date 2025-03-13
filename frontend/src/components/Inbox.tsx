@@ -3,9 +3,10 @@ import Contacts from "./Contacts";
 import Chat from "./Chat";
 import {useAuthStore} from "../store/auth";
 import Loading from "./Loading";
+import {Contact} from "../interface/contact";
 
 export default function Inbox() {
-	const [selectedContact, setSelectedContact] = useState<string | null>(null);
+	const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
 
 	const {loading} = useAuthStore();
 
@@ -18,7 +19,7 @@ export default function Inbox() {
 		 <div className="border w-full h-full">
 			 <div className="flex h-full overflow-hidden">
 				 <Contacts onSelectContact={setSelectedContact} selectedContact={selectedContact}/>
-				 {selectedContact && <Chat contactId={selectedContact}/>}
+				 {selectedContact && <Chat contact={selectedContact}/>}
 			 </div>
 		 </div>
 	 </div>

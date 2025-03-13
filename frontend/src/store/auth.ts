@@ -3,7 +3,7 @@ import {
 	getContactsRequest,
 	getMessagesRequest,
 	getProfileRequest,
-	refreshTokenRequest,
+	refreshTokenRequest, sendMessageRequest,
 	signInRequest,
 	signUpRequest
 } from "../api/auth";
@@ -22,6 +22,7 @@ interface AuthState {
 	fetchUser: () => Promise<void>;
 	fetchContacts: () => Promise<void>;
 	fetchMessages: (contactId: string | null, page: number, limit: number) => Promise<any[]>;
+	sendMessage: (receiverId: string, content: string, file?: File | null) => Promise<any>;
 }
 
 const loadAuthState = (): Partial<AuthState> => {
@@ -183,6 +184,26 @@ export const useAuthStore = create<AuthState>((set) => ({
 			set({loading: false});
 		}
 	},
+
+	sendMessage: async (receiverId: string, content: string, file?: File | null) => {
+		set({ loading: true, error: null });
+
+		const state = useAuthStore.getState();
+		if (!state.accessToken || !receiverId) {
+			set({loading: false});
+			return;
+		}
+
+		try {
+			const response = await sendMessageRequest(receiverId, content, file);
+			return response.message;
+		} catch (error) {
+			console.error("Error enviando mensaje:", error);
+			set({ error: "No se pudo enviar el mensaje." });
+		} finally {
+			set({ loading: false });
+		}
+	}
 }));
 
 (async () => {
