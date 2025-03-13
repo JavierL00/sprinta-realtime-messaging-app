@@ -1,4 +1,4 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
 import { ContactsService } from './contacts.service';
 import { JwtAuthGuard } from '../auth/guards/jwt.auth.guard';
 
@@ -12,5 +12,11 @@ export class ContactsController {
     return this.contactsService.findAllContactsByUserId(
       req.user.user_metadata.sub,
     );
+  }
+
+  @Get('search')
+  @UseGuards(JwtAuthGuard)
+  async searchContacts(@Query('query') query: string) {
+    return this.contactsService.searchContacts(query);
   }
 }

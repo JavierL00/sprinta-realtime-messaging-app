@@ -18,4 +18,20 @@ export class ContactsService {
       );
     return data;
   }
+
+  async searchContacts(query: string) {
+    const { data, error } = await this.supabase
+      .getClient()
+      .from('users')
+      .select('id, email, name')
+      .or(`email.ilike.%${query}%,name.ilike.%${query}%`);
+
+    if (error) {
+      throw new Error(
+        `No se pudieron buscar los contactos. Error: ${error.message}`,
+      );
+    }
+
+    return data;
+  }
 }
