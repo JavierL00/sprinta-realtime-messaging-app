@@ -1,34 +1,25 @@
 import {ReactElement, useState} from "react";
-import {UserAuth} from "../context/AuthContext";
 import {Link, useNavigate} from "react-router-dom";
+import {useAuthStore} from "../store/auth";
 
-export default function Signin(): ReactElement {
+export default function SignIn(): ReactElement {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
-	const [error, setError] = useState("");
-	const [loading, setLoading] = useState(false);
 
-	const {signInUser} = UserAuth();
+	const {signIn, error, loading} = useAuthStore();
+
 	const navigate = useNavigate();
 
 	const handleSignIn = async (e: any) => {
 		e.preventDefault();
-		setLoading(true);
-		setError("");
 
-		try {
-			const result = await signInUser(email, password);
+		await signIn(email, password);
 
-			if (result.success) {
-				navigate("/dashboard");
-			}
-		} catch (error) {
-			const errorType = error as Error;
-			setError(errorType.message);
-		} finally {
-			setLoading(false);
+		const {accessToken} = useAuthStore.getState();
+		if (accessToken) {
+			navigate("/dashboard");
 		}
-	}
+	};
 
 	return (
 	 <div>

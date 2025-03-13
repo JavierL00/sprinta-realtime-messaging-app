@@ -1,5 +1,4 @@
 import {ReactElement, useState} from "react";
-import {UserAuth} from "../context/AuthContext";
 import {Link, useNavigate} from "react-router-dom";
 
 export default function Signup(): ReactElement {
@@ -8,26 +7,14 @@ export default function Signup(): ReactElement {
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
 
-	const {signUpNewUser} = UserAuth();
 	const navigate = useNavigate();
 
 	const handleSignUp = async (e: any) => {
 		e.preventDefault();
 		setLoading(true);
 		setError("");
-
-		try {
-			const result = await signUpNewUser(email, password);
-
-			if (result.success) {
-				navigate("/dashboard");
-			}
-		} catch (error) {
-			const errorType = error as Error;
-			setError(errorType.message);
-		} finally {
-			setLoading(false);
-		}
+		console.log(email, password)
+		navigate("/register");
 	}
 
 	return (
