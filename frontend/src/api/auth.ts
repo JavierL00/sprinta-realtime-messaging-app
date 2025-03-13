@@ -71,19 +71,12 @@ export const getMessagesRequest = async (contactId: string, page: number, limit:
 	}
 }
 
-export const sendMessageRequest = async (receiverId: string, content: string, file?: File | null) => {
-	const formData = new FormData();
-	formData.append("receiver_id", receiverId);
-	formData.append("content", content);
-	if (file) {
-		formData.append("file", file);
-	}
-
+export const sendMessageRequest = async (receiverId: string, content: string) => {
 	try {
-		const response = await axios.post("/messages", formData, {
-			headers: {
-				"Content-Type": "multipart/form-data",
-		}});
+		const response = await axios.post("/messages", {
+			receiverId,
+			content
+		});
 		return response.data;
 	} catch (error) {
 		const errorType = error as Error;

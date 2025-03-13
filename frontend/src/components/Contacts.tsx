@@ -1,4 +1,4 @@
-import {ReactElement, useEffect} from "react";
+import {ReactElement, useEffect, useState} from "react";
 import {useAuthStore} from "../store/auth";
 import {Contact} from "../interface/contact";
 
@@ -8,9 +8,8 @@ interface Props {
 }
 
 export default function Contacts({onSelectContact, selectedContact}: Props): ReactElement {
-	const {user} = useAuthStore();
-	const contacts = useAuthStore((state) => state.contacts);
-	const fetchContacts = useAuthStore((state) => state.fetchContacts);
+	const {user, contacts, fetchMessages, fetchContacts} = useAuthStore();
+	const [messages, setMessages] = useState<any[]>([]);
 
 	useEffect(() => {
 		if (contacts === null) {
@@ -18,6 +17,15 @@ export default function Contacts({onSelectContact, selectedContact}: Props): Rea
 		}
 	}, [contacts, fetchContacts]);
 
+	const handleFetchMessages = async (contact: Contact) => {
+		const newMessages = await fetchMessages(contact.id, 1, 10);
+		setMessages(newMessages);
+	}
+
+	const handleSelectContact = async (contact: Contact) => {
+		onSelectContact(contact);
+		await handleFetchMessages(contact);
+	}
 
 	return (
 	 <div className="w-1/4 min-w-[150px] border-r bg-gray-100 p-4">
@@ -31,7 +39,7 @@ export default function Contacts({onSelectContact, selectedContact}: Props): Rea
 			 {contacts?.map((contact: Contact) => (
 				<li
 				 key={contact.id}
-				 onClick={() => onSelectContact(contact)}
+				 onClick={() => handleSelectContact(contact)}
 				 className={`p-3 rounded-lg cursor-pointer ${
 					selectedContact?.id === contact.id
 					 ? "bg-purple-500 text-white"

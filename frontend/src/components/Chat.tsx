@@ -1,4 +1,4 @@
-import {ReactElement, useEffect, useRef, useState} from "react";
+import {ReactElement, useEffect, useState} from "react";
 import {useAuthStore} from "../store/auth";
 import {Contact} from "../interface/contact";
 
@@ -11,39 +11,15 @@ export default function Chat({contact}: Props): ReactElement {
 	const [messages, setMessages] = useState<any[]>([]);
 	const [page, setPage] = useState(1);
 	const [message, setMessage] = useState("");
-	const [file, setFile] = useState<File | null>(null);
-	const prevContactId = useRef<string | null>(null);
 
-	// useEffect(() => {
-	// 	const loadMessages = async () => {
-	// 		if (!contact) return;
-	//
-	// 		if (prevContactId.current !== contact) {
-	// 			setMessages([]);
-	// 			setPage(1);
-	// 			prevContactId.current = contact;
-	// 		}
-	//
-	// 		const newMessages = await fetchMessages(contact, page, 10);
-	//
-	// 		setMessages((prevMessages) => {
-	// 			const existingIds = new Set(prevMessages.map(msg => msg.id));
-	// 			const filteredMessages = newMessages.filter(msg => !existingIds.has(msg.id));
-	// 			return [...filteredMessages, ...prevMessages];
-	// 		});
-	// 	};
-	//
-	// 	loadMessages();
-	// }, [contact, page]);
 
 	const handleSendMessage = async () => {
-		if (!contact || (!message && !file)) return;
-		const newMessage = await sendMessage(contact?.id, message, file);
+		if (!contact || (!message)) return;
+		const newMessage = await sendMessage(contact?.id, message);
 		if (newMessage) {
 			setMessages((prevMessages) => [...prevMessages, newMessage]);
 		}
 		setMessage("");
-		setFile(null);
 	};
 
 	return (
@@ -86,7 +62,6 @@ export default function Chat({contact}: Props): ReactElement {
 					<input
 					 type="file"
 					 className="border rounded-md text-sm p-2 w-[250px] text-stone-500 file:mr-5 file:py-1 file:px-3 file:text-xs file:font-medium file:border file:rounded-md file:bg-stone-50 file:text-stone-700 hover:file:cursor-pointer hover:file:bg-blue-50 hover:file:text-blue-700"
-					 onChange={(e) => setFile(e.target.files?.[0] || null)}
 					/>
 					<button
 					 onClick={handleSendMessage}

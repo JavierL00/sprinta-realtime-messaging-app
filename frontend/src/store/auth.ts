@@ -22,7 +22,7 @@ interface AuthState {
 	fetchUser: () => Promise<void>;
 	fetchContacts: () => Promise<void>;
 	fetchMessages: (contactId: string | null, page: number, limit: number) => Promise<any[]>;
-	sendMessage: (receiverId: string, content: string, file?: File | null) => Promise<any>;
+	sendMessage: (receiverId: string, content: string) => Promise<any>;
 }
 
 const loadAuthState = (): Partial<AuthState> => {
@@ -173,9 +173,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
 		try {
 			const response = await getMessagesRequest(contactId, page, limit);
-
 			console.log('fetching messages', response);
-
 			return response.messages ?? [];
 		} catch (error) {
 			console.error("Error obteniendo mensajes:", error);
@@ -185,7 +183,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 		}
 	},
 
-	sendMessage: async (receiverId: string, content: string, file?: File | null) => {
+	sendMessage: async (receiverId: string, content: string) => {
 		set({ loading: true, error: null });
 
 		const state = useAuthStore.getState();
@@ -195,7 +193,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 		}
 
 		try {
-			const response = await sendMessageRequest(receiverId, content, file);
+			const response = await sendMessageRequest(receiverId, content);
 			return response.message;
 		} catch (error) {
 			console.error("Error enviando mensaje:", error);
