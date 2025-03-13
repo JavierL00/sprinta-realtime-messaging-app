@@ -15,6 +15,7 @@ interface AuthState {
 	refreshToken: string | null;
 	error: string | null;
 	loading: boolean;
+	messageLoading: boolean;
 	signIn: (email: string, password: string) => Promise<void>;
 	signUp: (email: string, password: string, name: string) => Promise<void>;
 	signOut: () => void;
@@ -41,6 +42,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 	error: null,
 	loading: false,
 	contacts: null,
+	messageLoading: false,
 
 	...loadAuthState(),
 
@@ -164,10 +166,10 @@ export const useAuthStore = create<AuthState>((set) => ({
 	},
 
 	fetchMessages: async (contactId: string | null, page: number, limit: number) => {
-		set({loading: true, error: null});
+		set({messageLoading: true, error: null});
 		const state = useAuthStore.getState();
 		if (!state.accessToken || !contactId) {
-			set({loading: false});
+			set({messageLoading: false});
 			return [];
 		}
 
@@ -179,7 +181,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 			console.error("Error obteniendo mensajes:", error);
 			return [];
 		} finally {
-			set({loading: false});
+			set({messageLoading: false});
 		}
 	},
 
