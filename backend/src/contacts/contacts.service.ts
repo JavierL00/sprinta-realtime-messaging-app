@@ -9,14 +9,15 @@ export class ContactsService {
     const { data, error } = await this.supabase
       .getClient()
       .from('contacts')
-      .select(`users:contact_id (id, email)`)
+      .select(`users:contact_id (id, email, name)`)
       .eq('user_id', userId);
 
     if (error)
       throw new Error(
         `No se pudieron obtener los contactos. Error: ${error.message}`,
       );
-    return data;
+
+    return data.map((contact) => contact.users);
   }
 
   async searchContacts(query: string) {

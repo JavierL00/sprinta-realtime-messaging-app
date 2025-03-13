@@ -9,7 +9,6 @@ import { ExtractJwt } from 'passport-jwt';
 
 @Injectable({ scope: Scope.REQUEST })
 export class Supabase {
-  private readonly logger = new Logger(Supabase.name);
   private clientInstance: SupabaseClient;
 
   constructor(
@@ -22,13 +21,16 @@ export class Supabase {
       return this.clientInstance;
     }
 
+    const token = ExtractJwt.fromAuthHeaderAsBearerToken()(this.request);
+
     this.clientInstance = createClient(
       this.configService.get('SUPABASE_API_URL'),
       this.configService.get('SUPABASE_ANON_KEY'),
-    );
-
-    this.clientInstance.auth.setSession(
-      ExtractJwt.fromAuthHeaderAsBearerToken()(this.request),
+      {
+        global: {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        },
+      },
     );
 
     return this.clientInstance;
