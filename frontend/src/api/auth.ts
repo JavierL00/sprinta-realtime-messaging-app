@@ -60,3 +60,13 @@ export const getContactsRequest = async () => {
 		return errorType.message;
 	}
 }
+
+export const getMessagesRequest = async (contactId: string, page: number, limit: number) => {
+	try {
+		const response = await axios.get(`/messages?contact_id=${contactId}&page=${page}&limit=${limit}`);
+		return response.data;
+	} catch (error) {
+		const errorType = error as Error;
+		return errorType.message;
+	}
+}

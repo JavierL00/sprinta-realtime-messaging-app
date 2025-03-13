@@ -11,6 +11,8 @@ const authApi = axios.create({
 	withCredentials: true,
 });
 
+let isRefreshing = false;
+
 authApi.interceptors.request.use(async (config) => {
 	const state = useAuthStore.getState();
 	let token = state.accessToken;
@@ -27,13 +29,17 @@ authApi.interceptors.response.use(
  (response) => response,
  async (error) => {
 	 const state = useAuthStore.getState();
-	 if (error.response?.status === 401 && state.refreshToken) {
+	 if (error.response?.status === 401 && state.refreshToken && !isRefreshing) {
+		 isRefreshing = true;
 		 try {
 			 const newTokens = await state.refreshTokens();
 			 error.config.headers.Authorization = `Bearer ${newTokens.accessToken}`;
+			 isRefreshing = false;
 			 return axios(error.config);
 		 } catch (refreshError) {
 			 state.signOut();
+			 isRefreshing = false;
+			 window.location.href = "/";
 			 return Promise.reject(refreshError);
 		 }
 	 }

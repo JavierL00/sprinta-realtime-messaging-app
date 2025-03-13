@@ -1,5 +1,12 @@
 import {create} from "zustand/react";
-import {getContactsRequest, getProfileRequest, refreshTokenRequest, signInRequest, signUpRequest} from "../api/auth";
+import {
+	getContactsRequest,
+	getMessagesRequest,
+	getProfileRequest,
+	refreshTokenRequest,
+	signInRequest,
+	signUpRequest
+} from "../api/auth";
 
 interface AuthState {
 	user: any | null;
@@ -14,6 +21,7 @@ interface AuthState {
 	refreshTokens: () => Promise<{ accessToken: string; refreshToken: string }>;
 	fetchUser: () => Promise<void>;
 	fetchContacts: () => Promise<void>;
+	fetchMessages: (contactId: string | null, page: number, limit: number) => Promise<any[]>;
 }
 
 const loadAuthState = (): Partial<AuthState> => {
@@ -139,6 +147,8 @@ export const useAuthStore = create<AuthState>((set) => ({
 		try {
 			const response = await getContactsRequest();
 
+			console.log('fetching contacts', response);
+
 			if (!response) {
 				throw new Error("No se pudo obtener los contactos.");
 			}
@@ -150,10 +160,31 @@ export const useAuthStore = create<AuthState>((set) => ({
 		} finally {
 			set({loading: false});
 		}
-	}
+	},
+
+	fetchMessages: async (contactId: string | null, page: number, limit: number) => {
+		set({loading: true, error: null});
+		const state = useAuthStore.getState();
+		if (!state.accessToken || !contactId) {
+			set({loading: false});
+			return [];
+		}
+
+		try {
+			const response = await getMessagesRequest(contactId, page, limit);
+
+			console.log('fetching messages', response);
+
+			return response.messages ?? [];
+		} catch (error) {
+			console.error("Error obteniendo mensajes:", error);
+			return [];
+		} finally {
+			set({loading: false});
+		}
+	},
 }));
 
 (async () => {
 	await useAuthStore.getState().fetchUser();
-	await useAuthStore.getState().fetchContacts();
 })();

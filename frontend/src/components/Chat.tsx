@@ -1,36 +1,50 @@
-import {ReactElement} from "react";
+import {ReactElement, useEffect, useState} from "react";
+import {useAuthStore} from "../store/auth";
 
 interface Props {
-	selectedContact: string | null;
+	contactId: string | null;
 }
 
-export default function Chat({selectedContact}: Props): ReactElement {
-	const messages = [
-		{sender: "Juan Pérez", text: "Hola, ¿cómo estás?"},
-		{sender: "Tú", text: "¡Todo bien! ¿Y tú?"},
-	];
+export default function Chat({contactId}: Props): ReactElement {
+	const fetchMessages = useAuthStore((state) => state.fetchMessages);
+	// const sendMessage = useAuthStore((state) => state.sendMessage);
+	const [messages, setMessages] = useState<any[]>([]);
+	const [page, setPage] = useState(1);
+	const [message, setMessage] = useState("");
+
+	useEffect(() => {
+		const loadMessages = async () => {
+			if (!contactId) return;
+			const newMessages = await fetchMessages(contactId, page, 10);
+			setMessages(newMessages);
+		};
+
+		setMessages([]);
+		if (contactId) loadMessages();
+	}, [contactId, page]);
 
 	return (
 	 <div className="flex-1 flex flex-col">
-		 {selectedContact ? (
+		 {contactId ? (
 			<>
 				<div className="p-4 border-b bg-gray-200">
-					<h2 className="text-xl font-bold">{selectedContact}</h2>
+					<h2 className="text-xl font-bold">{contactId}</h2>
 				</div>
 				<div className="flex-1 overflow-y-auto p-4 space-y-3">
 					{messages.map((msg, index) => (
 					 <div
 						key={index}
 						className={`p-3 rounded-lg max-w-xs ${
-						 msg.sender === "Tú"
-							? "bg-purple-500 text-white self-end"
-							: "bg-gray-300"
+						 msg.sender === contactId
+							? "bg-purple-500 text-white self-end text-left"
+							: "bg-gray-300 text-right"
 						}`}
 					 >
-						 {msg.text}
+						 {msg.content}
 					 </div>
 					))}
 				</div>
+				<button className="mt-4 p-2 bg-gray-300" onClick={() => setPage(page + 1)}>Cargar más</button>
 				<div className="p-4 border-t bg-white flex">
 					<input
 					 type="text"
