@@ -3,15 +3,17 @@ import {useAuthStore} from "../store/auth";
 import Loading from "./Loading";
 import {Contact} from "../interface/contact";
 import {Message} from "../interface/message";
+import {defaultContact} from "../data/contacts";
+import Contacts from "./Contacts";
 
 export default function Inbox() {
-	const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+	const [selectedContact, setSelectedContact] = useState<Contact>(defaultContact);
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [page, setPage] = useState(1);
 	const [message, setMessage] = useState("");
 	const downPageRef = useRef(document.createElement("div"))
 
-	const {loading, messageLoading, sendingMessage, user, contacts, fetchContacts, fetchMessages, sendMessage} = useAuthStore();
+	const {loading, messageLoading, sendingMessage, contacts, fetchContacts, fetchMessages, sendMessage} = useAuthStore();
 
 	const handleFetchMessages = async (contact: Contact) => {
 		const newMessages = await fetchMessages(contact.id, page, 10);
@@ -24,7 +26,7 @@ export default function Inbox() {
 	}
 
 	const handleSendMessage = async () => {
-		if (!selectedContact || (!message)) return;
+		if (selectedContact.id || (!message)) return;
 		const newMessage = await sendMessage(selectedContact.id, message);
 		if (newMessage) {
 			setMessages((prevMessages) => [...prevMessages, newMessage]);
@@ -35,10 +37,8 @@ export default function Inbox() {
 	};
 
 	useEffect(() => {
-		if (contacts === null) {
-			fetchContacts();
-		}
-	}, [contacts, fetchContacts]);
+		fetchContacts();
+	}, [fetchContacts]);
 
 	if (loading) {
 		return <Loading/>;
@@ -50,29 +50,7 @@ export default function Inbox() {
 			 <div className="flex h-full overflow-hidden">
 
 				 {/* Contacts */}
-				 <div className="w-1/4 min-w-[150px] border-r bg-gray-100 p-4 flex-shrink-0">
-					 <h2 className="text-xl font-bold pb-2 pl-1.5">Bienvenido, {user?.name}!</h2>
-					 <input
-						type="text"
-						placeholder="Buscar..."
-						className="w-full mt-2 p-2 border rounded-md"
-					 />
-					 <ul className="mt-4 space-y-2">
-						 {contacts?.map((contact: Contact) => (
-							<li
-							 key={contact.id}
-							 onClick={() => handleSelectContact(contact)}
-							 className={`p-3 rounded-lg cursor-pointer ${
-								selectedContact?.id === contact.id
-								 ? "bg-purple-500 text-white"
-								 : "hover:bg-gray-200"
-							 }`}
-							>
-								{contact.name}
-							</li>
-						 ))}
-					 </ul>
-				 </div>
+				 <Contacts handleSelectContact={handleSelectContact} selectedContact={selectedContact}/>
 				 {/* Contacts */}
 
 				 {/* Chat */}

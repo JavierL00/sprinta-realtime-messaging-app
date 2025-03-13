@@ -7,10 +7,12 @@ import {
 	signInRequest,
 	signUpRequest
 } from "../api/auth";
+import {defaultContacts} from "../data/contacts";
+import {Contact} from "../interface/contact";
 
 interface AuthState {
 	user: any | null;
-	contacts: any[] | null;
+	contacts: Contact[];
 	accessToken: string | null;
 	refreshToken: string | null;
 	error: string | null;
@@ -42,7 +44,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 	refreshToken: null,
 	error: null,
 	loading: false,
-	contacts: null,
+	contacts: defaultContacts,
 	messageLoading: false,
 	sendingMessage: false,
 
@@ -161,7 +163,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 			set({contacts: response});
 		} catch (error) {
 			console.error("Error obteniendo contactos:", error);
-			set({contacts: null});
+			set({contacts: defaultContacts});
 		} finally {
 			set({loading: false});
 		}
