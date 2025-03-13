@@ -44,7 +44,6 @@ export const getProfileRequest = async (token: string) => {
 		const response = await axios.post("/auth/profile", {
 			token,
 		})
-		console.log(response);
 		return response.data;
 	} catch (error) {
 		const errorType = error as Error;

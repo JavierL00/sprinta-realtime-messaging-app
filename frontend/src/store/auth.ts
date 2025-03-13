@@ -104,10 +104,15 @@ export const useAuthStore = create<AuthState>((set) => ({
 	fetchUser: async () => {
 		set({loading: true, error: null});
 		const state = useAuthStore.getState();
-		if (!state.accessToken) return;
+		if (!state.accessToken) {
+			set({loading: false});
+			return;
+		}
 
 		try {
 			const response = await getProfileRequest(state.accessToken);
+
+			console.log('response: ', response);
 			if (!response) {
 				throw new Error("No se pudo obtener el usuario.");
 			}
