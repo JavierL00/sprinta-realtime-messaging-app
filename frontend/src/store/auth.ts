@@ -1,8 +1,9 @@
 import {create} from "zustand/react";
-import {getProfileRequest, refreshTokenRequest, signInRequest, signUpRequest} from "../api/auth";
+import {getContactsRequest, getProfileRequest, refreshTokenRequest, signInRequest, signUpRequest} from "../api/auth";
 
 interface AuthState {
 	user: any | null;
+	contacts: any[] | null;
 	accessToken: string | null;
 	refreshToken: string | null;
 	error: string | null;
@@ -12,6 +13,7 @@ interface AuthState {
 	signOut: () => void;
 	refreshTokens: () => Promise<{ accessToken: string; refreshToken: string }>;
 	fetchUser: () => Promise<void>;
+	fetchContacts: () => Promise<void>;
 }
 
 const loadAuthState = (): Partial<AuthState> => {
@@ -29,6 +31,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 	refreshToken: null,
 	error: null,
 	loading: false,
+	contacts: null,
 
 	...loadAuthState(),
 
@@ -112,7 +115,6 @@ export const useAuthStore = create<AuthState>((set) => ({
 		try {
 			const response = await getProfileRequest(state.accessToken);
 
-			console.log('response: ', response);
 			if (!response) {
 				throw new Error("No se pudo obtener el usuario.");
 			}
@@ -125,8 +127,33 @@ export const useAuthStore = create<AuthState>((set) => ({
 			set({loading: false});
 		}
 	},
+
+	fetchContacts: async () => {
+		set({loading: true, error: null});
+		const state = useAuthStore.getState();
+		if (!state.accessToken) {
+			set({loading: false});
+			return;
+		}
+
+		try {
+			const response = await getContactsRequest();
+
+			if (!response) {
+				throw new Error("No se pudo obtener los contactos.");
+			}
+
+			set({contacts: response});
+		} catch (error) {
+			console.error("Error obteniendo contactos:", error);
+			set({contacts: null});
+		} finally {
+			set({loading: false});
+		}
+	}
 }));
 
 (async () => {
 	await useAuthStore.getState().fetchUser();
+	await useAuthStore.getState().fetchContacts();
 })();

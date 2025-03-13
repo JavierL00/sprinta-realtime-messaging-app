@@ -50,3 +50,13 @@ export const getProfileRequest = async (token: string) => {
 		return errorType.message;
 	}
 }
+
+export const getContactsRequest = async () => {
+	try {
+		const response = await axios.get("/contacts")
+		return response.data;
+	} catch (error) {
+		const errorType = error as Error;
+		return errorType.message;
+	}
+}

@@ -7,13 +7,7 @@ interface Props {
 }
 
 export default function Contacts({selectedContact, setSelectedContact}: Props): ReactElement {
-	const {user} = useAuthStore();
-
-	const contacts = [
-		{id: "1", name: "Juan Pérez"},
-		{id: "2", name: "María López"},
-		{id: "3", name: "Carlos Sánchez"},
-	];
+	const {user, contacts} = useAuthStore();
 
 	return (
 	 <div className="w-1/4 min-w-[250px] border-r bg-gray-100 p-4">
@@ -25,7 +19,7 @@ export default function Contacts({selectedContact, setSelectedContact}: Props): 
 			className="w-full mt-2 p-2 border rounded-md"
 		 />
 		 <ul className="mt-4 space-y-2">
-			 {contacts.map((contact) => (
+			 {contacts?.map((contact) => (
 				<li
 				 key={contact.id}
 				 onClick={() => setSelectedContact(contact.name)}
