@@ -16,6 +16,7 @@ interface AuthState {
 	error: string | null;
 	loading: boolean;
 	messageLoading: boolean;
+	sendingMessage: boolean;
 	signIn: (email: string, password: string) => Promise<void>;
 	signUp: (email: string, password: string, name: string) => Promise<void>;
 	signOut: () => void;
@@ -43,6 +44,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 	loading: false,
 	contacts: null,
 	messageLoading: false,
+	sendingMessage: false,
 
 	...loadAuthState(),
 
@@ -175,7 +177,6 @@ export const useAuthStore = create<AuthState>((set) => ({
 
 		try {
 			const response = await getMessagesRequest(contactId, page, limit);
-			console.log('fetching messages', response);
 			return response.messages ?? [];
 		} catch (error) {
 			console.error("Error obteniendo mensajes:", error);
@@ -186,22 +187,23 @@ export const useAuthStore = create<AuthState>((set) => ({
 	},
 
 	sendMessage: async (receiverId: string, content: string) => {
-		set({ loading: true, error: null });
+		set({ sendingMessage: true, error: null });
 
 		const state = useAuthStore.getState();
 		if (!state.accessToken || !receiverId) {
-			set({loading: false});
+			set({sendingMessage: false});
 			return;
 		}
 
 		try {
 			const response = await sendMessageRequest(receiverId, content);
+			console.log('sending message', response);
 			return response.message;
 		} catch (error) {
 			console.error("Error enviando mensaje:", error);
 			set({ error: "No se pudo enviar el mensaje." });
 		} finally {
-			set({ loading: false });
+			set({ sendingMessage: false });
 		}
 	}
 }));

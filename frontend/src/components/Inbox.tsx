@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {useAuthStore} from "../store/auth";
 import Loading from "./Loading";
 import {Contact} from "../interface/contact";
@@ -9,8 +9,9 @@ export default function Inbox() {
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [page, setPage] = useState(1);
 	const [message, setMessage] = useState("");
+	const downPageRef = useRef(document.createElement("div"))
 
-	const {loading, messageLoading, user, contacts, fetchContacts, fetchMessages, sendMessage} = useAuthStore();
+	const {loading, messageLoading, sendingMessage, user, contacts, fetchContacts, fetchMessages, sendMessage} = useAuthStore();
 
 	const handleFetchMessages = async (contact: Contact) => {
 		const newMessages = await fetchMessages(contact.id, page, 10);
@@ -24,11 +25,13 @@ export default function Inbox() {
 
 	const handleSendMessage = async () => {
 		if (!selectedContact || (!message)) return;
-		const newMessage = await sendMessage(selectedContact?.id, message);
+		const newMessage = await sendMessage(selectedContact.id, message);
 		if (newMessage) {
 			setMessages((prevMessages) => [...prevMessages, newMessage]);
 		}
 		setMessage("");
+
+		downPageRef.current.scrollIntoView({behavior: "smooth"});
 	};
 
 	useEffect(() => {
@@ -80,6 +83,8 @@ export default function Inbox() {
 							 <div className="p-4 border-b bg-gray-200">
 								 <h2 className="text-xl font-bold">{selectedContact?.name}</h2>
 							 </div>
+
+							 {/* Chat box*/}
 							 <div className="flex-1 overflow-y-auto p-4 space-y-3">
 								 {messages.map((msg: Message) => (
 									<div
@@ -100,14 +105,9 @@ export default function Inbox() {
 									</div>
 								 ))}
 							 </div>
-							 {messages.length > 0 && (
-								<button
-								 className="mt-4 p-2 bg-gray-300"
-								 onClick={() => setPage((prev) => prev + 1)}
-								>
-									Cargar más
-								</button>
-							 )}
+							 <div ref={downPageRef}></div>
+							 {/* Chat box*/}
+
 							 <div className="p-4 border-t bg-white flex flex-wrap gap-2">
 								 <input
 									type="text"
@@ -116,15 +116,12 @@ export default function Inbox() {
 									value={message}
 									onChange={(e) => setMessage(e.target.value)}
 								 />
-								 <input
-									type="file"
-									className="border rounded-md text-sm p-2 w-[250px] text-stone-500 file:mr-5 file:py-1 file:px-3 file:text-xs file:font-medium file:border file:rounded-md file:bg-stone-50 file:text-stone-700 hover:file:cursor-pointer hover:file:bg-blue-50 hover:file:text-blue-700"
-								 />
 								 <button
 									onClick={handleSendMessage}
+									disabled={sendingMessage}
 									className="px-4 py-2 bg-purple-500 text-white rounded-md"
 								 >
-									 Enviar
+									 {sendingMessage ? "Enviando..." : "Enviar"}
 								 </button>
 							 </div>
 						 </>
@@ -134,8 +131,7 @@ export default function Inbox() {
 						 </div>
 						)}
 					</div>
-				 )
-				 }
+				 )}
 				 {/* Chat */}
 			 </div>
 		 </div>
