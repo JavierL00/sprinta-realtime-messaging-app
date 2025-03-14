@@ -11,7 +11,7 @@ interface Props {
 }
 
 export default function Chat({selectedContact, setMessages, messages}: Props): ReactElement {
-	const downPageRef = useRef(document.createElement("div"))
+	const chatContainerRef = useRef<HTMLDivElement>(null);
 	const [message, setMessage] = useState("");
 	const {messageLoading, sendingMessage, sendMessage} = useAuthStore();
 	const messageRef = useRef<HTMLInputElement>(null);
@@ -27,7 +27,10 @@ export default function Chat({selectedContact, setMessages, messages}: Props): R
 	};
 
 	useEffect(() => {
-		downPageRef.current.scrollIntoView({behavior: "smooth"});
+		chatContainerRef.current?.scrollTo({
+			top: chatContainerRef.current.scrollHeight,
+			behavior: "smooth",
+		});
 	}, [messages]);
 
 	if (messageLoading) return <Loading/>;
@@ -61,7 +64,7 @@ export default function Chat({selectedContact, setMessages, messages}: Props): R
 					 </div>
 					))}
 				</div>
-				<div ref={downPageRef}></div>
+				<div ref={chatContainerRef}></div>
 				{/* Chat box*/}
 
 				<div className="p-4 border-t bg-white flex flex-wrap gap-2">

@@ -14,13 +14,13 @@ export default function Inbox() {
 
 	const handleFetchMessages = useCallback(async (contact: Contact) => {
 		const newMessages = await fetchMessages(contact.id, 1, 10);
-		setMessages((prev) => [...prev, ...newMessages]);
+		setMessages(newMessages);
 	}, [fetchMessages]);
 
-	const handleSelectContact = async (contact: Contact) => {
+	const handleSelectContact = useCallback(async (contact: Contact) => {
 		setSelectedContact(contact);
 		await handleFetchMessages(contact);
-	}
+	}, [handleFetchMessages]);
 
 	useEffect(() => {
 		fetchContacts();
