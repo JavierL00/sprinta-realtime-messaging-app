@@ -20,7 +20,7 @@ export default function Inbox() {
 		isFetchingNextPage,
 	} = useInfiniteQuery({
 		queryKey: ["messages", selectedContact.id],
-		queryFn: async ({ pageParam = 1 }) => {
+		queryFn: async ({pageParam = 1}) => {
 			return await fetchMessages(selectedContact.id, pageParam, limit);
 		},
 		initialPageParam: 1,
@@ -32,7 +32,7 @@ export default function Inbox() {
 		retry: 3,
 	});
 
-	const messages = data?.pages.flat() || [];
+	const messages = data?.pages.flat().reverse() || [];
 
 	const handleSelectContact = useCallback(async (contact: Contact) => {
 		setSelectedContact(contact);
@@ -42,16 +42,25 @@ export default function Inbox() {
 		fetchContacts();
 	}, [fetchContacts]);
 
-	if (loading || isLoading) {
+	if (loading) {
 		return <Loading/>;
 	}
 
 	return (
-	 <div className="border h-svh p-8">
-		 <div className="border w-full h-full">
+	 <div
+		className="h-svh p-8"
+		style={{
+			backgroundImage: `radial-gradient(#9b4fad 2px, transparent 1px), radial-gradient(#9b4fad 1px, transparent 1px)`,
+			backgroundSize: `32px 32px`,
+			backgroundPosition: `0 0, 16px 16px`,
+			backgroundColor: `#f9f9f9`,
+		}}
+	 >
+		 <div className="border-4 bg-white w-full h-full overflow-hidden rounded-xl">
 			 <div className="flex h-full overflow-hidden">
 				 <Contacts handleSelectContact={handleSelectContact} selectedContact={selectedContact}/>
 				 <Chat
+					isLoading={isLoading}
 					selectedContact={selectedContact}
 					messages={messages}
 					fetchNextPage={fetchNextPage}

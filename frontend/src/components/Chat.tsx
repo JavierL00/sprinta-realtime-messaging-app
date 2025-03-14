@@ -1,9 +1,10 @@
-import {ReactElement, useEffect, useRef, useState, UIEvent} from "react";
+import {ReactElement, useEffect, useRef, useState, UIEvent, useLayoutEffect} from "react";
 import {Message} from "../interface/message";
 import {Contact} from "../interface/contact";
 import {useAuthStore} from "../store/auth";
 
 interface Props {
+	isLoading: boolean;
 	selectedContact: Contact;
 	messages: Message[];
 	fetchNextPage: () => void;
@@ -13,6 +14,7 @@ interface Props {
 
 export default function Chat(
  {
+	 isLoading,
 	 selectedContact,
 	 messages,
 	 fetchNextPage,
@@ -27,7 +29,19 @@ export default function Chat(
 
 	const handleSendMessage = async () => {
 		if (!message.trim()) return;
+
+		const newMessage: Message = {
+			id: Date.now().toString(),
+			content: message,
+			sender_id: useAuthStore.getState().user?.id,
+			receiver_id: selectedContact?.id,
+			created_at: new Date().toISOString(),
+		};
+
+		messages.push(newMessage);
+
 		await sendMessage(selectedContact?.id, message);
+
 		setMessage("");
 	};
 
@@ -38,7 +52,7 @@ export default function Chat(
 		}
 	};
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (lastMessageRef.current) {
 			lastMessageRef.current.scrollIntoView({behavior: "smooth"});
 		}
@@ -46,16 +60,16 @@ export default function Chat(
 
 	return (
 	 <div className="flex-1 flex flex-col">
-		 {selectedContact ? (
+		 {selectedContact.id !== "" ? (
 			<>
-				<div className="p-4 border-b bg-gray-200">
+				<div className="p-4 border-b bg-gray-300">
 					<h2 className="text-xl font-bold">{selectedContact?.name}</h2>
 				</div>
 
 				{/* Chat box */}
 				<div
 				 ref={chatContainerRef}
-				 className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[50vh] border-2 border-black"
+				 className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[50vh]"
 				 onScroll={handleScroll}
 				>
 					{/* Loading mensajes anteriores */}
@@ -89,6 +103,7 @@ export default function Chat(
 					 placeholder="Escribe un mensaje..."
 					 className="flex-1 p-2 border rounded-md"
 					 value={message}
+					 disabled={isLoading}
 					 onChange={(e) => setMessage(e.target.value)}
 					 onKeyDown={(e) => {
 						 if (e.key === "Enter") {
@@ -101,6 +116,7 @@ export default function Chat(
 					 onClick={handleSendMessage}
 					 className="px-4 py-2 bg-purple-500 text-white rounded-md"
 					 aria-label="Enviar mensaje"
+					 disabled={isLoading}
 					>
 						Enviar
 					</button>

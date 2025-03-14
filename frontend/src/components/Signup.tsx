@@ -21,7 +21,15 @@ export default function Signup(): ReactElement {
 	}
 
 	return (
-	 <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
+	 <div
+		className="flex min-h-screen items-center justify-center bg-gray-100 px-4"
+		style={{
+			backgroundImage: `radial-gradient(#9b4fad 2px, transparent 1px), radial-gradient(#9b4fad 1px, transparent 1px)`,
+			backgroundSize: `32px 32px`,
+			backgroundPosition: `0 0, 16px 16px`,
+			backgroundColor: `#f9f9f9`,
+		}}
+	 >
 		 <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
 			 <h2 className="mb-2 text-center text-2xl font-bold text-gray-800">Sign up today!</h2>
 			 <p className="text-center text-gray-600">

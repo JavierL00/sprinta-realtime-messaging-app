@@ -155,8 +155,6 @@ export const useAuthStore = create<AuthState>((set) => ({
 		try {
 			const response = await getContactsRequest();
 
-			console.log('fetching contacts', response);
-
 			if (!response) {
 				throw new Error("No se pudo obtener los contactos.");
 			}
@@ -180,7 +178,6 @@ export const useAuthStore = create<AuthState>((set) => ({
 
 		try {
 			const response = await getMessagesRequest(contactId, page, limit);
-			console.log('fetching messages', response);
 			return response.messages ?? [];
 		} catch (error) {
 			console.error("Error obteniendo mensajes:", error);
@@ -201,7 +198,6 @@ export const useAuthStore = create<AuthState>((set) => ({
 
 		try {
 			const response = await sendMessageRequest(receiverId, content);
-			console.log('sending message', response);
 			return response.message;
 		} catch (error) {
 			console.error("Error enviando mensaje:", error);

@@ -16,8 +16,8 @@ export default function Contacts({handleSelectContact, selectedContact}: Props):
 		 <input
 			aria-label="Buscar contactos"
 			type="text"
-			placeholder="Buscar..."
-			className="w-full mt-2 p-2 border rounded-md"
+			placeholder="Buscar contacto"
+			className="w-full mt-2 p-2 border-2 rounded-md border-black placeholder:text-black"
 		 />
 		 <ul className="mt-4 space-y-2">
 			 {contacts.map((contact: Contact) => (
