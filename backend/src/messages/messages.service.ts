@@ -27,7 +27,7 @@ export class MessagesService {
       return { error: error.message };
     }
 
-    return { messages: data };
+    return { messages: data.reverse() };
   }
 
   async sendMessage(senderId: string, receiverId: string, content: string) {
