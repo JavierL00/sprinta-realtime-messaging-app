@@ -26,24 +26,27 @@ export default function Chat(
 	const messageRef = useRef<HTMLInputElement>(null);
 	const chatContainerRef = useRef<HTMLDivElement>(null);
 	const [message, setMessage] = useState("");
+	const [chatMessages, setChatMessages] = useState(messages);
+
+	useEffect(() => {
+		setChatMessages(messages);
+	}, [messages]);
 
 	const handleSendMessage = async () => {
 		if (!message.trim()) return;
 
-		const newMessage: Message = {
-			id: Date.now().toString(),
-			content: message,
-			sender_id: useAuthStore.getState().user?.id,
-			receiver_id: selectedContact?.id,
-			created_at: new Date().toISOString(),
-		};
+		try {
+			const response = await sendMessage(selectedContact?.id, message);
 
-		messages.push(newMessage);
-
-		await sendMessage(selectedContact?.id, message);
-
-		setMessage("");
+			if (response) {
+				setChatMessages((prevMessages) => [...prevMessages, response]);
+				setMessage("");
+			}
+		} catch (error) {
+			console.error("Error al enviar el mensaje:", error);
+		}
 	};
+
 
 	const handleScroll = (event: UIEvent<HTMLDivElement>) => {
 		const {scrollTop} = event.currentTarget;
@@ -56,7 +59,7 @@ export default function Chat(
 		if (lastMessageRef.current) {
 			lastMessageRef.current.scrollIntoView({behavior: "smooth"});
 		}
-	}, [messages]);
+	}, [chatMessages]);
 
 	return (
 	 <div className="flex-1 flex flex-col">
@@ -77,9 +80,9 @@ export default function Chat(
 					 <div className="text-center text-gray-500">Cargando más mensajes...</div>
 					)}
 
-					{messages.map((msg: Message, index: number) => (
+					{chatMessages.map((msg: Message, index: number) => (
 					 <div
-						ref={index === messages.length - 1 ? lastMessageRef : null}
+						ref={index === chatMessages.length - 1 ? lastMessageRef : null}
 						key={msg.id}
 						className={`flex w-full ${msg.receiver_id === selectedContact?.id ? "justify-end" : "justify-start"}`}
 					 >

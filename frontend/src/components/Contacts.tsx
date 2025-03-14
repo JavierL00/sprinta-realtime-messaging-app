@@ -8,11 +8,16 @@ interface Props {
 }
 
 export default function Contacts({handleSelectContact, selectedContact}: Props): ReactElement {
-	const {user, contacts} = useAuthStore();
+	const {user, contacts, signOut} = useAuthStore();
 
 	return (
 	 <div className="w-1/4 min-w-[150px] border-r bg-gray-100 p-4 flex-shrink-0">
-		 <h2 className="text-xl font-bold pb-2 pl-1.5">Bienvenido, {user?.name}!</h2>
+		 <div className={'flex justify-between items-center pb-2'}>
+			 <button className={'bg-purple-500 text-white px-2 py-1 rounded-md'} onClick={signOut}>
+				 Sign out
+			 </button>
+			 <h2 className="text-xl font-bold pl-1.5">Bienvenido, {user?.name}!</h2>
+		 </div>
 		 <input
 			aria-label="Buscar contactos"
 			type="text"

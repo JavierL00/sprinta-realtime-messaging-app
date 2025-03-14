@@ -10,7 +10,7 @@ import {useInfiniteQuery} from "@tanstack/react-query";
 export default function Inbox() {
 	const [selectedContact, setSelectedContact] = useState<Contact>(defaultContact);
 	const {loading, fetchMessages, fetchContacts} = useAuthStore();
-	const limit: number = 20;
+	const limit: number = 30;
 
 	const {
 		data,
@@ -21,7 +21,8 @@ export default function Inbox() {
 	} = useInfiniteQuery({
 		queryKey: ["messages", selectedContact.id],
 		queryFn: async ({pageParam = 1}) => {
-			return await fetchMessages(selectedContact.id, pageParam, limit);
+			const messages = await fetchMessages(selectedContact.id, pageParam, limit);
+			return messages.reverse();
 		},
 		initialPageParam: 1,
 		getNextPageParam: (lastPage, allPages) => {
