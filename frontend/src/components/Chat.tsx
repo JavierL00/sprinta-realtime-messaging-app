@@ -11,26 +11,27 @@ interface Props {
 }
 
 export default function Chat({selectedContact, setMessages, messages}: Props): ReactElement {
-	const chatContainerRef = useRef<HTMLDivElement>(null);
+	const lastMessageRef = useRef<HTMLDivElement | null>(null);
 	const [message, setMessage] = useState("");
 	const {messageLoading, sendingMessage, sendMessage} = useAuthStore();
 	const messageRef = useRef<HTMLInputElement>(null);
 
 	const handleSendMessage = async () => {
-		const message = messageRef.current?.value.trim();
-		if (!selectedContact.id || !message) return;
-		const newMessage = await sendMessage(selectedContact.id, message);
+		const messageText = messageRef.current?.value.trim();
+		if (!selectedContact.id || !messageText) return;
+
+		setMessage(""); // Limpia el input antes de actualizar el estado
+		const newMessage = await sendMessage(selectedContact.id, messageText);
+
 		if (newMessage) {
 			setMessages((prevMessages: any) => [...prevMessages, newMessage]);
 		}
-		setMessage("");
 	};
 
 	useEffect(() => {
-		chatContainerRef.current?.scrollTo({
-			top: chatContainerRef.current.scrollHeight,
-			behavior: "smooth",
-		});
+		if (lastMessageRef.current) {
+			lastMessageRef.current.scrollIntoView({behavior: "smooth"});
+		}
 	}, [messages]);
 
 	if (messageLoading) return <Loading/>;
@@ -43,29 +44,22 @@ export default function Chat({selectedContact, setMessages, messages}: Props): R
 					<h2 className="text-xl font-bold">{selectedContact?.name}</h2>
 				</div>
 
-				{/* Chat box*/}
+				{/* Chat box */}
 				<div className="flex-1 overflow-y-auto p-4 space-y-3">
-					{messages.map((msg: Message) => (
+					{messages.map((msg: Message, index: number) => (
 					 <div
+						ref={index === messages.length - 1 ? lastMessageRef : null}
 						key={msg.id}
-						className={`flex w-full ${
-						 msg.receiver_id === selectedContact?.id
-							? "justify-end"
-							: "justify-start"
-						}`}
+						className={`flex w-full ${msg.receiver_id === selectedContact?.id ? "justify-end" : "justify-start"}`}
 					 >
-						 <div className={`p-3 rounded-lg w-fit ${
-							msg.receiver_id === selectedContact?.id
-							 ? "bg-gray-300"
-							 : "bg-purple-500 text-white"
-						 }`}>
+						 <div
+							className={`p-3 rounded-lg w-fit ${msg.receiver_id === selectedContact?.id ? "bg-gray-300" : "bg-purple-500 text-white"}`}>
 							 {msg.content}
 						 </div>
 					 </div>
 					))}
 				</div>
-				<div ref={chatContainerRef}></div>
-				{/* Chat box*/}
+				{/* Chat box */}
 
 				<div className="p-4 border-t bg-white flex flex-wrap gap-2">
 					<input
