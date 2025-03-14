@@ -94,6 +94,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 		set({user: null, accessToken: null, refreshToken: null});
 		localStorage.removeItem("accessToken");
 		localStorage.removeItem("refreshToken");
+		localStorage.clear();
 	},
 
 	refreshTokens: async () => {
@@ -189,7 +190,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 	},
 
 	sendMessage: async (receiverId: string, content: string) => {
-		set({ sendingMessage: true, error: null });
+		set({sendingMessage: true, error: null});
 
 		const state = useAuthStore.getState();
 		if (!state.accessToken || !receiverId) {
@@ -203,9 +204,9 @@ export const useAuthStore = create<AuthState>((set) => ({
 			return response.message;
 		} catch (error) {
 			console.error("Error enviando mensaje:", error);
-			set({ error: "No se pudo enviar el mensaje." });
+			set({error: "No se pudo enviar el mensaje."});
 		} finally {
-			set({ sendingMessage: false });
+			set({sendingMessage: false});
 		}
 	}
 }));

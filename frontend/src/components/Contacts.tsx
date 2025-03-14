@@ -14,6 +14,7 @@ export default function Contacts({handleSelectContact, selectedContact}: Props):
 	 <div className="w-1/4 min-w-[150px] border-r bg-gray-100 p-4 flex-shrink-0">
 		 <h2 className="text-xl font-bold pb-2 pl-1.5">Bienvenido, {user?.name}!</h2>
 		 <input
+			aria-label="Buscar contactos"
 			type="text"
 			placeholder="Buscar..."
 			className="w-full mt-2 p-2 border rounded-md"
