@@ -2,31 +2,47 @@ import {useCallback, useEffect, useState} from "react";
 import {useAuthStore} from "../store/auth";
 import Loading from "./Loading";
 import {Contact} from "../interface/contact";
-import {Message} from "../interface/message";
 import {defaultContact} from "../data/contacts";
 import Contacts from "./Contacts";
 import Chat from "./Chat";
+import {useInfiniteQuery} from "@tanstack/react-query";
 
 export default function Inbox() {
 	const [selectedContact, setSelectedContact] = useState<Contact>(defaultContact);
-	const [messages, setMessages] = useState<Message[]>([]);
 	const {loading, fetchMessages, fetchContacts} = useAuthStore();
+	const limit: number = 20;
 
-	const handleFetchMessages = useCallback(async (contact: Contact) => {
-		const newMessages = await fetchMessages(contact.id, 1, 10);
-		setMessages(newMessages);
-	}, [fetchMessages]);
+	const {
+		data,
+		fetchNextPage,
+		hasNextPage,
+		isLoading,
+		isFetchingNextPage,
+	} = useInfiniteQuery({
+		queryKey: ["messages", selectedContact.id],
+		queryFn: async ({ pageParam = 1 }) => {
+			return await fetchMessages(selectedContact.id, pageParam, limit);
+		},
+		initialPageParam: 1,
+		getNextPageParam: (lastPage, allPages) => {
+			if (lastPage.length < limit) return undefined;
+			return allPages.length + 1;
+		},
+		staleTime: 1000 * 60 * 5,
+		retry: 3,
+	});
+
+	const messages = data?.pages.flat() || [];
 
 	const handleSelectContact = useCallback(async (contact: Contact) => {
 		setSelectedContact(contact);
-		await handleFetchMessages(contact);
-	}, [handleFetchMessages]);
+	}, []);
 
 	useEffect(() => {
 		fetchContacts();
 	}, [fetchContacts]);
 
-	if (loading) {
+	if (loading || isLoading) {
 		return <Loading/>;
 	}
 
@@ -35,7 +51,13 @@ export default function Inbox() {
 		 <div className="border w-full h-full">
 			 <div className="flex h-full overflow-hidden">
 				 <Contacts handleSelectContact={handleSelectContact} selectedContact={selectedContact}/>
-				 <Chat selectedContact={selectedContact} setMessages={setMessages} messages={messages}/>
+				 <Chat
+					selectedContact={selectedContact}
+					messages={messages}
+					fetchNextPage={fetchNextPage}
+					hasNextPage={hasNextPage}
+					isFetchingNextPage={isFetchingNextPage}
+				 />
 			 </div>
 		 </div>
 	 </div>

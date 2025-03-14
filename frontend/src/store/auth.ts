@@ -180,6 +180,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
 		try {
 			const response = await getMessagesRequest(contactId, page, limit);
+			console.log('fetching messages', response);
 			return response.messages ?? [];
 		} catch (error) {
 			console.error("Error obteniendo mensajes:", error);

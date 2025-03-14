@@ -9,12 +9,12 @@ function App(): ReactElement {
 	return (
 	 <Router>
 		 <AuthGuard>
-			 <Routes>
-				 <Route path="/" element={<SignIn/>}/>
-				 <Route path="/signup" element={<Signup/>}/>
-				 <Route path="/inbox" element={<Inbox/>}/>
-				 <Route path="*" element={<Navigate to="/"/>}/>
-			 </Routes>
+				 <Routes>
+					 <Route path="/" element={<SignIn/>}/>
+					 <Route path="/signup" element={<Signup/>}/>
+					 <Route path="/inbox" element={<Inbox/>}/>
+					 <Route path="*" element={<Navigate to="/"/>}/>
+				 </Routes>
 		 </AuthGuard>
 	 </Router>
 	);

@@ -1,30 +1,40 @@
-import {ReactElement, useEffect, useRef, useState} from "react";
-import Loading from "./Loading";
+import {ReactElement, useEffect, useRef, useState, UIEvent} from "react";
 import {Message} from "../interface/message";
-import {useAuthStore} from "../store/auth";
 import {Contact} from "../interface/contact";
+import {useAuthStore} from "../store/auth";
 
 interface Props {
 	selectedContact: Contact;
-	setMessages: (messages: any) => void;
 	messages: Message[];
+	fetchNextPage: () => void;
+	hasNextPage: boolean;
+	isFetchingNextPage: boolean;
 }
 
-export default function Chat({selectedContact, setMessages, messages}: Props): ReactElement {
+export default function Chat(
+ {
+	 selectedContact,
+	 messages,
+	 fetchNextPage,
+	 hasNextPage,
+	 isFetchingNextPage,
+ }: Props): ReactElement {
+	const {sendMessage} = useAuthStore();
 	const lastMessageRef = useRef<HTMLDivElement | null>(null);
-	const [message, setMessage] = useState("");
-	const {messageLoading, sendingMessage, sendMessage} = useAuthStore();
 	const messageRef = useRef<HTMLInputElement>(null);
+	const chatContainerRef = useRef<HTMLDivElement>(null);
+	const [message, setMessage] = useState("");
 
 	const handleSendMessage = async () => {
-		const messageText = messageRef.current?.value.trim();
-		if (!selectedContact.id || !messageText) return;
+		if (!message.trim()) return;
+		await sendMessage(selectedContact?.id, message);
+		setMessage("");
+	};
 
-		setMessage(""); // Limpia el input antes de actualizar el estado
-		const newMessage = await sendMessage(selectedContact.id, messageText);
-
-		if (newMessage) {
-			setMessages((prevMessages: any) => [...prevMessages, newMessage]);
+	const handleScroll = (event: UIEvent<HTMLDivElement>) => {
+		const {scrollTop} = event.currentTarget;
+		if (scrollTop < 100 && hasNextPage && !isFetchingNextPage) {
+			fetchNextPage();
 		}
 	};
 
@@ -33,8 +43,6 @@ export default function Chat({selectedContact, setMessages, messages}: Props): R
 			lastMessageRef.current.scrollIntoView({behavior: "smooth"});
 		}
 	}, [messages]);
-
-	if (messageLoading) return <Loading/>;
 
 	return (
 	 <div className="flex-1 flex flex-col">
@@ -45,7 +53,16 @@ export default function Chat({selectedContact, setMessages, messages}: Props): R
 				</div>
 
 				{/* Chat box */}
-				<div className="flex-1 overflow-y-auto p-4 space-y-3">
+				<div
+				 ref={chatContainerRef}
+				 className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[50vh] border-2 border-black"
+				 onScroll={handleScroll}
+				>
+					{/* Loading mensajes anteriores */}
+					{isFetchingNextPage && (
+					 <div className="text-center text-gray-500">Cargando más mensajes...</div>
+					)}
+
 					{messages.map((msg: Message, index: number) => (
 					 <div
 						ref={index === messages.length - 1 ? lastMessageRef : null}
@@ -53,7 +70,10 @@ export default function Chat({selectedContact, setMessages, messages}: Props): R
 						className={`flex w-full ${msg.receiver_id === selectedContact?.id ? "justify-end" : "justify-start"}`}
 					 >
 						 <div
-							className={`p-3 rounded-lg w-fit ${msg.receiver_id === selectedContact?.id ? "bg-gray-300" : "bg-purple-500 text-white"}`}>
+							className={`p-3 rounded-lg w-fit ${
+							 msg.receiver_id === selectedContact?.id ? "bg-gray-300" : "bg-purple-500 text-white"
+							}`}
+						 >
 							 {msg.content}
 						 </div>
 					 </div>
@@ -61,6 +81,7 @@ export default function Chat({selectedContact, setMessages, messages}: Props): R
 				</div>
 				{/* Chat box */}
 
+				{/* Input para enviar mensaje */}
 				<div className="p-4 border-t bg-white flex flex-wrap gap-2">
 					<input
 					 type="text"
@@ -69,14 +90,19 @@ export default function Chat({selectedContact, setMessages, messages}: Props): R
 					 className="flex-1 p-2 border rounded-md"
 					 value={message}
 					 onChange={(e) => setMessage(e.target.value)}
+					 onKeyDown={(e) => {
+						 if (e.key === "Enter") {
+							 e.preventDefault();
+							 handleSendMessage();
+						 }
+					 }}
 					/>
 					<button
 					 onClick={handleSendMessage}
-					 disabled={sendingMessage}
 					 className="px-4 py-2 bg-purple-500 text-white rounded-md"
 					 aria-label="Enviar mensaje"
 					>
-						{sendingMessage ? "Enviando..." : "Enviar"}
+						Enviar
 					</button>
 				</div>
 			</>
