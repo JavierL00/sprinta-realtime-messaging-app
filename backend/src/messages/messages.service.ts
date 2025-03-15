@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { Supabase } from '../auth/supabase';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class MessagesService {
-  constructor(private readonly supabase: Supabase) {}
+  constructor(
+    private readonly supabase: Supabase,
+    private readonly usersService: UsersService,
+  ) {}
 
   async getMessagesByContact(
     userId: string,
@@ -48,6 +52,22 @@ export class MessagesService {
       return { error: error.message };
     }
 
-    return { message: data };
+    const { user: sender, error: errorSender } =
+      await this.usersService.getUserById(senderId);
+
+    if (errorSender) {
+      return { error: error.message };
+    }
+
+    return {
+      message: {
+        id: data.id,
+        sender_id: sender.id,
+        sender_name: sender.name,
+        receiver_id: receiverId,
+        content: data.content,
+        created_at: data.created_at,
+      },
+    };
   }
 }
