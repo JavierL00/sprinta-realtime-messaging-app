@@ -1,5 +1,5 @@
-import {Contact} from "../interface/contact";
+import {ContactType} from "../interface/contactType";
 
-export const defaultContact: Contact = {id: "", name: "", email: ""};
+export const defaultContact: ContactType = {id: "", name: "", email: ""};
 
-export const defaultContacts: Contact[] = [defaultContact];
+export const defaultContacts: ContactType[] = [defaultContact];

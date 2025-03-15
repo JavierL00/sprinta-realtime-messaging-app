@@ -1,10 +1,10 @@
 import {ReactElement} from "react";
-import {Contact} from "../interface/contact";
+import {ContactType} from "../interface/contactType";
 import {useAuthStore} from "../store/auth";
 
 interface Props {
-	handleSelectContact: (contact: Contact) => void;
-	selectedContact: Contact;
+	handleSelectContact: (contact: ContactType) => void;
+	selectedContact: ContactType;
 }
 
 export default function Contacts({handleSelectContact, selectedContact}: Props): ReactElement {
@@ -25,7 +25,7 @@ export default function Contacts({handleSelectContact, selectedContact}: Props):
 			className="w-full mt-2 p-2 border-2 rounded-md border-black placeholder:text-black"
 		 />
 		 <ul className="mt-4 space-y-2">
-			 {contacts.map((contact: Contact) => (
+			 {contacts.map((contact: ContactType) => (
 				<li
 				 key={contact.id}
 				 onClick={() => handleSelectContact(contact)}

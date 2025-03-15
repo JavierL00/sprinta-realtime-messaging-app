@@ -1,4 +1,4 @@
-export interface Contact {
+export interface ContactType {
 	id: string;
 	name: string;
 	email: string;

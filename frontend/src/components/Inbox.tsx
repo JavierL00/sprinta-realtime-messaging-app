@@ -1,7 +1,7 @@
 import {useCallback, useEffect, useState} from "react";
 import {useAuthStore} from "../store/auth";
 import Loading from "./Loading";
-import {Contact} from "../interface/contact";
+import {ContactType} from "../interface/contactType";
 import {defaultContact} from "../data/contacts";
 import Contacts from "./Contacts";
 import Chat from "./Chat";
@@ -10,7 +10,7 @@ import supabase from "../lib/supabase";
 import {Toaster, toast} from 'sonner';
 
 export default function Inbox() {
-	const [selectedContact, setSelectedContact] = useState<Contact>(defaultContact);
+	const [selectedContact, setSelectedContact] = useState<ContactType>(defaultContact);
 	const {loading, fetchMessages, fetchContacts, getUserById} = useAuthStore();
 	const limit: number = 30;
 
@@ -57,7 +57,7 @@ export default function Inbox() {
 
 	const messages = data?.pages.flat().reverse() || [];
 
-	const handleSelectContact = useCallback(async (contact: Contact) => {
+	const handleSelectContact = useCallback(async (contact: ContactType) => {
 		setSelectedContact(contact);
 	}, []);
 
@@ -70,15 +70,7 @@ export default function Inbox() {
 	}
 
 	return (
-	 <div
-		className="h-svh p-8"
-		style={{
-			backgroundImage: `radial-gradient(#9b4fad 2px, transparent 1px), radial-gradient(#9b4fad 1px, transparent 1px)`,
-			backgroundSize: `32px 32px`,
-			backgroundPosition: `0 0, 16px 16px`,
-			backgroundColor: `#f9f9f9`,
-		}}
-	 >
+	 <div className="h-svh p-8">
 		 <div className="border-4 bg-white w-full h-full overflow-hidden rounded-xl">
 			 <div className="flex h-full overflow-hidden">
 				 <Contacts handleSelectContact={handleSelectContact} selectedContact={selectedContact}/>

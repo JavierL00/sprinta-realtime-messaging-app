@@ -9,12 +9,19 @@ function App(): ReactElement {
 	return (
 	 <Router>
 		 <AuthGuard>
+			 <div style={{
+				 backgroundImage: `radial-gradient(#9b4fad 2px, transparent 1px), radial-gradient(#9b4fad 1px, transparent 1px)`,
+				 backgroundSize: `32px 32px`,
+				 backgroundPosition: `0 0, 16px 16px`,
+				 backgroundColor: `#f9f9f9`,
+			 }}>
 				 <Routes>
 					 <Route path="/" element={<SignIn/>}/>
 					 <Route path="/signup" element={<Signup/>}/>
 					 <Route path="/inbox" element={<Inbox/>}/>
 					 <Route path="*" element={<Navigate to="/"/>}/>
 				 </Routes>
+			 </div>
 		 </AuthGuard>
 	 </Router>
 	);

@@ -10,11 +10,11 @@ import {
 	signUpRequest
 } from "../api/auth";
 import {defaultContacts} from "../data/contacts";
-import {Contact} from "../interface/contact";
+import {ContactType} from "../interface/contactType";
 
 interface AuthState {
 	user: any | null;
-	contacts: Contact[];
+	contacts: ContactType[];
 	accessToken: string | null;
 	refreshToken: string | null;
 	error: string | null;

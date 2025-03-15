@@ -1,12 +1,13 @@
-import {ReactElement, useEffect, useRef, useState, UIEvent, useLayoutEffect} from "react";
-import {Message} from "../interface/message";
-import {Contact} from "../interface/contact";
+import {ReactElement, useEffect, useRef, useState, UIEvent} from "react";
+import {MessageType} from "../interface/messageType";
+import {ContactType} from "../interface/contactType";
 import {useAuthStore} from "../store/auth";
+import Message from "./Message";
 
 interface Props {
 	isLoading: boolean;
-	selectedContact: Contact;
-	messages: Message[];
+	selectedContact: ContactType;
+	messages: MessageType[];
 	fetchNextPage: () => void;
 	hasNextPage: boolean;
 	isFetchingNextPage: boolean;
@@ -24,7 +25,6 @@ export default function Chat(
 	const {sendMessage} = useAuthStore();
 	const lastMessageRef = useRef<HTMLDivElement | null>(null);
 	const messageRef = useRef<HTMLInputElement>(null);
-	const chatContainerRef = useRef<HTMLDivElement>(null);
 	const [message, setMessage] = useState("");
 	const [chatMessages, setChatMessages] = useState(messages);
 
@@ -47,19 +47,12 @@ export default function Chat(
 		}
 	};
 
-
 	const handleScroll = (event: UIEvent<HTMLDivElement>) => {
 		const {scrollTop} = event.currentTarget;
-		if (scrollTop < 100 && hasNextPage && !isFetchingNextPage) {
+		if (scrollTop < 10 && hasNextPage && !isFetchingNextPage) {
 			fetchNextPage();
 		}
 	};
-
-	useLayoutEffect(() => {
-		if (lastMessageRef.current) {
-			lastMessageRef.current.scrollIntoView({behavior: "smooth"});
-		}
-	}, [chatMessages]);
 
 	return (
 	 <div className="flex-1 flex flex-col">
@@ -69,31 +62,19 @@ export default function Chat(
 					<h2 className="text-xl font-bold">{selectedContact?.name}</h2>
 				</div>
 
+				{/* Loading mensajes anteriores */}
+				{isFetchingNextPage && (
+				 <div className="text-center text-gray-500">Cargando más mensajes...</div>
+				)}
+
 				{/* Chat box */}
 				<div
-				 ref={chatContainerRef}
-				 className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[50vh]"
+				 className="flex flex-col-reverse gap-y-0.1 p-2 overflow-auto h-screen"
 				 onScroll={handleScroll}
 				>
-					{/* Loading mensajes anteriores */}
-					{isFetchingNextPage && (
-					 <div className="text-center text-gray-500">Cargando más mensajes...</div>
-					)}
-
-					{chatMessages.map((msg: Message, index: number) => (
-					 <div
-						ref={index === chatMessages.length - 1 ? lastMessageRef : null}
-						key={msg.id}
-						className={`flex w-full ${msg.receiver_id === selectedContact?.id ? "justify-end" : "justify-start"}`}
-					 >
-						 <div
-							className={`p-3 rounded-lg w-fit ${
-							 msg.receiver_id === selectedContact?.id ? "bg-gray-300" : "bg-purple-500 text-white"
-							}`}
-						 >
-							 {msg.content}
-						 </div>
-					 </div>
+					{[...messages].reverse().map((msg: MessageType, index: number) => (
+					 <Message msg={msg} selectedContact={selectedContact} index={index} chatMessages={chatMessages}
+										lastMessageRef={lastMessageRef}/>
 					))}
 				</div>
 				{/* Chat box */}
