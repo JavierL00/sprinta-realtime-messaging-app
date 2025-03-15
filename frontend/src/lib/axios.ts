@@ -28,6 +28,7 @@ authApi.interceptors.request.use(async (config) => {
 authApi.interceptors.response.use(
  (response) => response,
  async (error) => {
+	 console.log('entrando en interceptor');
 	 const state = useAuthStore.getState();
 	 if (error.response?.status === 401 && state.refreshToken && !isRefreshing) {
 		 isRefreshing = true;

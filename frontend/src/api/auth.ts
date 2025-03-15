@@ -83,3 +83,14 @@ export const sendMessageRequest = async (receiverId: string, content: string) =>
 		return errorType.message;
 	}
 }
+
+export const getUserById = async (userId: string) => {
+	try {
+		const response = await axios.get(`/users?id=${userId}`);
+		console.log(response.data)
+		return response.data;
+	} catch (error) {
+		const errorType = error as Error;
+		return errorType.message;
+	}
+}

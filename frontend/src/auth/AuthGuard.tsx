@@ -5,12 +5,16 @@ import {useAuthStore} from "../store/auth";
 export function AuthGuard({children}: { children: ReactElement }) {
 	const navigate = useNavigate();
 	const location = useLocation();
-	const {accessToken, refreshToken} = useAuthStore();
+	const {accessToken, refreshToken, signOut} = useAuthStore();
 
 	useEffect(() => {
 		const isAuth = accessToken && refreshToken;
 		const isSignupPage = location.pathname === "/signup";
 		const isHomePage = location.pathname === "/";
+
+		if (accessToken === 'undefined' && refreshToken === 'undefined') {
+			signOut();
+		}
 
 		if (!isAuth && !isHomePage && !isSignupPage) {
 			navigate("/");
@@ -23,7 +27,7 @@ export function AuthGuard({children}: { children: ReactElement }) {
 		if (isAuth && isSignupPage) {
 			navigate("/inbox");
 		}
-	}, [accessToken, refreshToken, location, navigate]);
+	}, [accessToken, refreshToken, location, navigate, signOut]);
 
 	return children;
 }

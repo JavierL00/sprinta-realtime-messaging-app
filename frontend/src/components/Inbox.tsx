@@ -6,11 +6,33 @@ import {defaultContact} from "../data/contacts";
 import Contacts from "./Contacts";
 import Chat from "./Chat";
 import {useInfiniteQuery} from "@tanstack/react-query";
+import supabase from "../lib/supabase";
+import {Toaster, toast} from 'sonner';
 
 export default function Inbox() {
 	const [selectedContact, setSelectedContact] = useState<Contact>(defaultContact);
-	const {loading, fetchMessages, fetchContacts} = useAuthStore();
+	const {loading, fetchMessages, fetchContacts, getUserById} = useAuthStore();
 	const limit: number = 30;
+
+	const useRealtimeMessages = (onNewMessage: any) => {
+		useEffect(() => {
+			const subscription = supabase
+			.channel('messages')
+			.on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'messages'}, (payload) => {
+				onNewMessage(payload.new);
+			})
+			.subscribe();
+
+			return () => {
+				supabase.removeChannel(subscription);
+			};
+		}, [onNewMessage]);
+	};
+
+	useRealtimeMessages(async (newMessage: any) => {
+		const sender = await getUserById(newMessage.sender_id);
+		toast(`${sender.user.name}: ${newMessage.content}`);
+	});
 
 	const {
 		data,
@@ -68,6 +90,7 @@ export default function Inbox() {
 					hasNextPage={hasNextPage}
 					isFetchingNextPage={isFetchingNextPage}
 				 />
+				 <Toaster/>
 			 </div>
 		 </div>
 	 </div>

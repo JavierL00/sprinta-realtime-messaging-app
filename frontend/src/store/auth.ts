@@ -3,7 +3,9 @@ import {
 	getContactsRequest,
 	getMessagesRequest,
 	getProfileRequest,
-	refreshTokenRequest, sendMessageRequest,
+	getUserById,
+	refreshTokenRequest,
+	sendMessageRequest,
 	signInRequest,
 	signUpRequest
 } from "../api/auth";
@@ -27,6 +29,7 @@ interface AuthState {
 	fetchContacts: () => Promise<void>;
 	fetchMessages: (contactId: string | null, page: number, limit: number) => Promise<any[]>;
 	sendMessage: (receiverId: string, content: string) => Promise<any>;
+	getUserById: (userId: string) => Promise<any>;
 }
 
 const loadAuthState = (): Partial<AuthState> => {
@@ -204,6 +207,15 @@ export const useAuthStore = create<AuthState>((set) => ({
 			set({error: "No se pudo enviar el mensaje."});
 		} finally {
 			set({sendingMessage: false});
+		}
+	},
+
+	getUserById: async (userId: string) => {
+		try {
+			return await getUserById(userId);
+		} catch (error) {
+			const errorType = error as Error;
+			return errorType.message;
 		}
 	}
 }));
